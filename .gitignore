@@ -56,6 +56,20 @@ Thumbs.db
 outputs/
 *.md
 !README.md
+!PRD*.md
+!用户调研*.md
+!竞品分析*.md
+!竞品清单.md
+!学术写作全流程痛点图谱.md
+!Google_AI_Studio_Prompt.md
+!CHANGELOG.md
+!FEATURES.md
+!PROJECT_PORTFOLIO.md
+!项目简介.md
+!项目细节问题及回答.md
+!第一个项目*.md
+!第二个项目*.md
+!说明.md
 
 # Binary / Office Files (not needed for deployment)
 *.pdf
