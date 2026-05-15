@@ -56,3 +56,10 @@ Thumbs.db
 outputs/
 *.md
 !README.md
+
+# Binary / Office Files (not needed for deployment)
+*.pdf
+*.docx
+*.doc
+*.xlsx
+*.pptx
