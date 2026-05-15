@@ -134,7 +134,7 @@ Reviewer 2:
     return sample_paper, sample_review
 
 
-with gr.Blocks(css=CUSTOM_CSS, title="ReviewResponse - 审稿意见回复助手") as app:
+with gr.Blocks(title="ReviewResponse - 审稿意见回复助手") as app:
     # ===== Header =====
     gr.HTML("""
     <div class="header-title">
@@ -261,8 +261,8 @@ with gr.Blocks(css=CUSTOM_CSS, title="ReviewResponse - 审稿意见回复助手"
 
 if __name__ == "__main__":
     app.launch(
-        server_name="127.0.0.1",
-        server_port=7861,
+        server_name="0.0.0.0",
         share=False,
         theme=THEME,
+        css=CUSTOM_CSS,
     )
