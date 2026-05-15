@@ -3,41 +3,210 @@ from src.review_response import run_review_response
 from src.utils.file_parser import extract_text
 
 THEME = gr.themes.Soft(
-    primary_hue="blue",
-    secondary_hue="slate",
-    neutral_hue="slate",
+    primary_hue="zinc",
+    secondary_hue="stone",
+    neutral_hue="stone",
 ).set(
     body_text_size="15px",
-    block_title_text_size="17px",
-    button_large_text_size="15px",
+    body_background_fill="#fafaf8",
+    block_background_fill="#ffffff",
+    block_border_color="#e7e5e4",
+    block_border_width="1px",
+    block_radius="16px",
+    block_shadow="0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04)",
+    input_background_fill="#fafaf8",
+    input_border_color="#e7e5e4",
+    input_border_width="1px",
+    input_radius="10px",
+    input_placeholder_color="#a8a29e",
+    button_border_width="1px",
+    button_primary_background_fill="#1c1917",
+    button_primary_background_fill_hover="#292524",
+    button_primary_text_color="#ffffff",
+    button_primary_border_color="#1c1917",
+    button_secondary_background_fill="#ffffff",
+    button_secondary_background_fill_hover="#fafaf8",
+    button_secondary_text_color="#57534e",
+    button_secondary_border_color="#e7e5e4",
     button_large_radius="10px",
-    block_radius="12px",
-    input_radius="8px",
-    checkbox_label_text_size="14px",
+    button_large_text_size="16px",
+    button_small_radius="10px",
+    button_small_text_size="14px",
+    border_color_primary="#e7e5e4",
+    loader_color="#1c1917",
 )
 
 CUSTOM_CSS = """
-.gradio-container { max-width: 1200px !important; margin: 0 auto !important; }
-.header-title { text-align: center; margin-bottom: 8px; }
-.header-title h1 { font-size: 2rem; font-weight: 700; margin-bottom: 4px; color: #1e293b; }
-.header-title p { font-size: 1rem; color: #64748b; margin: 0; }
-.step-indicator { display: flex; justify-content: center; gap: 12px; margin: 20px 0 28px; flex-wrap: wrap; }
-.step-badge { display: inline-flex; align-items: center; gap: 6px; background: #f1f5f9; border-radius: 20px; padding: 6px 16px; font-size: 13px; color: #475569; font-weight: 500; }
-.step-badge.active { background: #dbeafe; color: #1d4ed8; }
-.step-badge.done { background: #dcfce7; color: #16a34a; }
-.step-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-size: 12px; font-weight: 700; background: #e2e8f0; color: #64748b; }
-.step-badge.active .step-num { background: #2563eb; color: white; }
-.step-badge.done .step-num { background: #16a34a; color: white; }
-.section-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 12px; }
-.output-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-.output-header h3 { margin: 0; font-size: 1rem; font-weight: 600; }
-.divider { border: none; border-top: 1px solid #e2e8f0; margin: 28px 0; }
-footer { text-align: center; color: #94a3b8; font-size: 12px; margin-top: 32px; }
+/* ── Global ── */
+.gradio-container {
+    max-width: 1060px !important;
+    margin: 0 auto !important;
+    padding: 32px 24px 48px !important;
+    background: #fafaf8;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* ── Header ── */
+.app-header {
+    text-align: center;
+    padding: 40px 0 48px;
+}
+.app-header .logo {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1c1917;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+}
+.app-header .tagline {
+    font-size: 16px;
+    color: #78716c;
+    font-weight: 400;
+}
+
+/* ── Section labels ── */
+.section-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #78716c;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 16px;
+}
+
+/* ── Gradio component overrides ── */
+.gradio-container .wrap {
+    box-shadow: none !important;
+}
+.gradio-container .panel {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04) !important;
+    border: 1px solid #e7e5e4 !important;
+    border-radius: 16px !important;
+    background: #ffffff !important;
+    padding: 24px !important;
+    transition: box-shadow 0.2s ease;
+}
+.gradio-container .panel:hover {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 6px 20px rgba(0,0,0,0.06) !important;
+}
+.gradio-container textarea,
+.gradio-container input[type="text"] {
+    border: 1px solid #e7e5e4 !important;
+    border-radius: 10px !important;
+    background: #fafaf8 !important;
+    padding: 14px 16px !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    color: #292524 !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.gradio-container textarea:focus,
+.gradio-container input[type="text"]:focus {
+    border-color: #a8a29e !important;
+    box-shadow: 0 0 0 3px rgba(28,25,23,0.06) !important;
+    outline: none !important;
+}
+.gradio-container textarea::placeholder,
+.gradio-container input[type="text"]::placeholder {
+    color: #a8a29e !important;
+}
+
+/* ── File upload ── */
+.gradio-container .file-preview {
+    border: 1.5px dashed #d6d3d1 !important;
+    border-radius: 10px !important;
+    background: #fafaf8 !important;
+    padding: 20px !important;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+.gradio-container .file-preview:hover {
+    border-color: #a8a29e !important;
+    background: #f5f5f0 !important;
+}
+
+/* ── Buttons ── */
+.gradio-container button.primary {
+    font-weight: 600 !important;
+    letter-spacing: -0.2px;
+    padding: 14px 32px !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 1px 3px rgba(28,25,23,0.12) !important;
+}
+.gradio-container button.primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(28,25,23,0.18) !important;
+}
+.gradio-container button.secondary {
+    font-weight: 500 !important;
+    letter-spacing: -0.2px;
+    padding: 10px 20px !important;
+    transition: all 0.15s ease !important;
+}
+
+/* ── Output text areas ── */
+.output-box textarea {
+    font-size: 14px !important;
+    line-height: 1.7 !important;
+    background: #ffffff !important;
+    border: 1px solid #e7e5e4 !important;
+    border-radius: 12px !important;
+}
+
+/* ── Markdown headings in output ── */
+.gradio-container .prose h3,
+.gradio-container .md h4 {
+    font-weight: 600 !important;
+    color: #1c1917 !important;
+}
+
+/* ── Divider ── */
+.section-divider {
+    border: none;
+    border-top: 1px solid #e7e5e4;
+    margin: 40px 0 36px;
+}
+
+/* ── Footer ── */
+.app-footer {
+    text-align: center;
+    padding-top: 40px;
+    margin-top: 20px;
+}
+.app-footer .features {
+    display: flex;
+    justify-content: center;
+    gap: 36px;
+    flex-wrap: wrap;
+    margin-bottom: 36px;
+}
+.app-footer .feature-item {
+    text-align: center;
+    max-width: 180px;
+}
+.app-footer .feature-item .icon {
+    font-size: 20px;
+    margin-bottom: 8px;
+    display: block;
+}
+.app-footer .feature-item .title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #57534e;
+    margin-bottom: 4px;
+}
+.app-footer .feature-item .desc {
+    font-size: 12px;
+    color: #a8a29e;
+    line-height: 1.5;
+}
+.app-footer .copyright {
+    font-size: 12px;
+    color: #c4bdb8;
+}
 """
 
 
 def parse_paper_file(file):
-    """处理论文文件上传"""
     if file is None:
         return ""
     try:
@@ -49,7 +218,6 @@ def parse_paper_file(file):
 
 
 def parse_review_file(file):
-    """处理审稿意见文件上传"""
     if file is None:
         return ""
     try:
@@ -61,24 +229,31 @@ def parse_review_file(file):
 
 
 def handle_generate(paper_content, review_text):
-    """生成回复信"""
     if not paper_content.strip():
-        return "### ⚠️ 请先上传论文\n\n粘贴正文或上传 PDF/Word 文件均可。", "等待生成..."
+        return (
+            "## ⚠️ 请先上传论文\n\n粘贴正文或上传 PDF / Word 文件均可。",
+            "等待生成...",
+        )
     if len(paper_content.strip()) < 100:
-        return "### ⚠️ 论文内容太短\n\n请确保上传了完整的论文正文（至少包含摘要、引言、方法等核心章节）。", "等待生成..."
+        return (
+            "## ⚠️ 论文内容太短\n\n请确保上传了完整的论文正文（至少包含摘要、引言、方法等核心章节）。",
+            "等待生成...",
+        )
     if not review_text.strip():
-        return "### ⚠️ 请先粘贴审稿意见\n\n将期刊/会议的审稿意见邮件原文粘贴到右侧输入框。", "等待生成..."
+        return (
+            "## ⚠️ 请先粘贴审稿意见\n\n将期刊或会议的审稿意见邮件原文粘贴到右侧输入框。",
+            "等待生成...",
+        )
 
     result = run_review_response(paper_content, review_text, "论文")
 
     if result.get("error"):
-        return f"### ⚠️ {result['error']}", ""
+        return f"## ⚠️ {result['error']}", ""
 
     return result["response_letter"], result["review_points"]
 
 
 def load_example():
-    """加载示例数据"""
     sample_paper = """# 基于深度学习的人机协作机械臂装配系统研究
 
 ## 摘要
@@ -134,109 +309,110 @@ Reviewer 2:
     return sample_paper, sample_review
 
 
-with gr.Blocks(title="ReviewResponse - 审稿意见回复助手") as app:
-    # ===== Header =====
+with gr.Blocks(title="ReviewResponse — 审稿意见回复助手") as app:
+    # ── Header ──
     gr.HTML("""
-    <div class="header-title">
-      <h1>ReviewResponse</h1>
-      <p>粘贴论文 + 审稿意见，AI 自动生成逐条回复草稿</p>
-    </div>
-    <div class="step-indicator">
-      <div class="step-badge active"><span class="step-num">1</span> 上传论文</div>
-      <div class="step-badge"><span class="step-num">2</span> 粘贴审稿意见</div>
-      <div class="step-badge"><span class="step-num">3</span> 一键生成回复信</div>
+    <div class="app-header">
+        <div class="logo">ReviewResponse</div>
+        <div class="tagline">粘贴论文与审稿意见，AI 自动生成逐条回复草稿</div>
     </div>
     """)
 
-    # ===== Input Zone =====
+    # ── Input Zone ──
     with gr.Row(equal_height=True):
-        # Left: Paper
         with gr.Column(scale=1):
-            gr.Markdown("#### 📄 论文原文")
+            gr.HTML('<div class="section-label">论文原文</div>')
             paper_file = gr.File(
-                label="上传论文文件",
+                label="上传 PDF / Word / Markdown",
                 file_types=[".pdf", ".docx", ".doc", ".txt", ".md"],
             )
             paper_content = gr.Textbox(
-                label="或直接粘贴论文正文",
-                placeholder="支持 PDF / Word / Markdown / 纯文本上传，\n也可以直接粘贴论文正文到这里...\n\n建议粘贴完整内容：摘要、引言、方法、实验、结论等",
-                lines=14,
-                max_lines=20,
+                label="或直接粘贴正文",
+                placeholder="支持 PDF、Word、Markdown 或纯文本上传，也可以直接粘贴论文正文到此处。\n\n建议粘贴完整内容：摘要、引言、方法、实验、结论等章节。",
+                lines=13,
+                max_lines=18,
             )
 
-        # Right: Review
         with gr.Column(scale=1):
-            gr.Markdown("#### 📋 审稿意见")
+            gr.HTML('<div class="section-label">审稿意见</div>')
             review_file = gr.File(
-                label="上传审稿意见文件",
+                label="上传 PDF / Word / Markdown",
                 file_types=[".pdf", ".docx", ".doc", ".txt", ".md"],
             )
             review_text = gr.Textbox(
                 label="或直接粘贴审稿意见",
-                placeholder="支持 PDF / Word / Markdown / 纯文本上传，\n也可以直接粘贴审稿意见...\n\n可以是：期刊邮件原文、审稿系统导出、导师批注等",
-                lines=14,
-                max_lines=20,
+                placeholder="支持 PDF、Word、Markdown 或纯文本上传，也可以直接粘贴审稿意见原文。\n\n可以是：期刊审稿邮件、投稿系统导出意见、导师批注等。",
+                lines=13,
+                max_lines=18,
             )
 
-    # ===== Actions =====
+    # ── Actions ──
     with gr.Row():
-        example_btn = gr.Button("📥 加载示例数据", variant="secondary", size="sm", scale=0)
-        submit_btn = gr.Button("生成回复信", variant="primary", size="lg", scale=1, min_width=200)
+        example_btn = gr.Button(
+            "加载示例数据", variant="secondary", size="sm", scale=0, min_width=120
+        )
+        submit_btn = gr.Button(
+            "生成回复信",
+            variant="primary",
+            size="lg",
+            scale=1,
+        )
 
-    gr.HTML('<hr class="divider">')
+    gr.HTML('<hr class="section-divider">')
 
-    # ===== Output Zone =====
+    # ── Output Zone ──
     with gr.Row():
         with gr.Column(scale=3):
-            gr.Markdown("#### ✉️ 回复信（Response Letter）")
+            gr.HTML('<div class="section-label">回复信 Response Letter</div>')
             output_response = gr.Textbox(
                 label=None,
-                lines=20,
-                max_lines=30,
-                placeholder="点击「生成回复信」后，AI 将在这里生成完整的逐条回复...",
+                lines=18,
+                max_lines=28,
+                placeholder="点击「生成回复信」后，AI 将在此处生成完整的逐条回复草稿，包含致谢开头、逐条回复与结尾致谢。",
                 show_label=False,
+                elem_classes=["output-box"],
             )
         with gr.Column(scale=2):
-            gr.Markdown("#### 🔍 审稿意见解析")
+            gr.HTML('<div class="section-label">审稿意见解析</div>')
             output_points = gr.Textbox(
                 label=None,
-                lines=20,
-                max_lines=30,
-                placeholder="审稿意见将自动拆分并编号...",
+                lines=18,
+                max_lines=28,
+                placeholder="审稿意见将自动拆分为逐条编号，按审稿人分组展示。",
                 show_label=False,
+                elem_classes=["output-box"],
             )
 
-    # ===== Footer =====
+    # ── Footer ──
     gr.HTML("""
-    <hr class="divider">
-    <div style="display:flex; gap:24px; justify-content:center; flex-wrap:wrap;">
-      <div style="max-width:200px; text-align:center;">
-        <div style="font-size:24px; margin-bottom:6px;">🔒</div>
-        <div style="font-weight:600; font-size:14px; color:#334155;">隐私安全</div>
-        <div style="font-size:12px; color:#94a3b8;">数据仅用于本次生成<br>不会上传至任何服务器</div>
-      </div>
-      <div style="max-width:200px; text-align:center;">
-        <div style="font-size:24px; margin-bottom:6px;">📝</div>
-        <div style="font-weight:600; font-size:14px; color:#334155;">AI 辅助起草</div>
-        <div style="font-size:12px; color:#94a3b8;">生成结果仅供参考<br>请逐条审核后提交</div>
-      </div>
-      <div style="max-width:200px; text-align:center;">
-        <div style="font-size:24px; margin-bottom:6px;">🌐</div>
-        <div style="font-weight:600; font-size:14px; color:#334155;">中英文支持</div>
-        <div style="font-size:12px; color:#94a3b8;">中文/英文审稿意见均可<br>自动匹配回复语言</div>
-      </div>
-      <div style="max-width:200px; text-align:center;">
-        <div style="font-size:24px; margin-bottom:6px;">⚡</div>
-        <div style="font-weight:600; font-size:14px; color:#334155;">极速生成</div>
-        <div style="font-size:12px; color:#94a3b8;">约30秒完成<br>逐条回复+修改位置标注</div>
-      </div>
+    <div class="app-footer">
+        <div class="features">
+            <div class="feature-item">
+                <span class="icon">&#9701;</span>
+                <div class="title">隐私安全</div>
+                <div class="desc">数据仅用于本次生成，不会上传至任何第三方服务器</div>
+            </div>
+            <div class="feature-item">
+                <span class="icon">&#9998;</span>
+                <div class="title">AI 辅助起草</div>
+                <div class="desc">生成结果仅供参考，请逐条审核后提交至期刊</div>
+            </div>
+            <div class="feature-item">
+                <span class="icon">&#9702;</span>
+                <div class="title">中英文支持</div>
+                <div class="desc">中英文审稿意见均可处理，自动匹配回复语言</div>
+            </div>
+            <div class="feature-item">
+                <span class="icon">&#9889;</span>
+                <div class="title">极速生成</div>
+                <div class="desc">约 30 秒完成逐条回复与修改位置标注</div>
+            </div>
+        </div>
+        <div class="copyright">ReviewResponse &mdash; 学术审稿意见回复辅助工具 &middot; AI 生成内容仅供参考</div>
     </div>
-    <footer>
-      ReviewResponse — 学术论文审稿意见回复辅助工具 · AI 起草仅供参考
-    </footer>
     """)
 
-    # ===== Event Bindings =====
+    # ── Event Bindings ──
     paper_file.change(
         fn=parse_paper_file,
         inputs=[paper_file],
