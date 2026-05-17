@@ -16,7 +16,7 @@ from src.review_response import parse_review_points, generate_response_letter
 from src.utils.file_parser import extract_text
 
 # Path to the frontend static build
-STATIC_DIR = Path(__file__).parent / "lovable-v1" / "dist" / "client"
+STATIC_DIR = Path(__file__).parent / "lovable-v1" / "dist"
 
 
 def extract_title(paper: str) -> str:

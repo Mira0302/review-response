@@ -4,11 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
-  HeadContent,
-  Scripts,
 } from "@tanstack/react-router";
-
-import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
   return (
@@ -37,48 +33,16 @@ function ErrorBoundary({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "ReviewResponseAssistant · 审稿意见回复助手" },
-      { name: "description", content: "为研究生与青年研究者打造的审稿意见回复工具原型设计" },
-      { property: "og:title", content: "ReviewResponseAssistant · 审稿意见回复助手" },
-      { name: "twitter:title", content: "ReviewResponseAssistant · 审稿意见回复助手" },
-      { property: "og:description", content: "为研究生与青年研究者打造的审稿意见回复工具原型设计" },
-      { name: "twitter:description", content: "为研究生与青年研究者打造的审稿意见回复工具原型设计" },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/19b35a70-579b-4427-8947-30e7a8d7ddd2/id-preview-d0be1456--03baf7b4-1966-40e9-856e-2e16ab6e9ccf.lovable.app-1778927673985.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/19b35a70-579b-4427-8947-30e7a8d7ddd2/id-preview-d0be1456--03baf7b4-1966-40e9-856e-2e16ab6e9ccf.lovable.app-1778927673985.png" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:type", content: "website" },
-    ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" },
-    ],
-  }),
-  shellComponent: RootShell,
-  component: () => (
-    <QueryProviders>
-      <Outlet />
-    </QueryProviders>
-  ),
+  component: Root,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorBoundary,
 });
 
-function QueryProviders({ children }: { children: React.ReactNode }) {
+function Root() {
   const { queryClient } = Route.useRouteContext();
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
-}
-
-function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="zh-CN">
-      <head><HeadContent /></head>
-      <body>{children}<Scripts /></body>
-    </html>
+    <QueryClientProvider client={queryClient}>
+      <Outlet />
+    </QueryClientProvider>
   );
 }
