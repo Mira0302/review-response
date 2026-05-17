@@ -8,11 +8,15 @@ from typing import Optional
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from src.review_response import parse_review_points, generate_response_letter
 from src.utils.file_parser import extract_text
+
+# Path to the frontend static build
+STATIC_DIR = Path(__file__).parent / "lovable-v1" / "dist" / "client"
 
 
 def extract_title(paper: str) -> str:
@@ -268,6 +272,19 @@ if _HAS_MULTIPART:
 async def health():
     return {"status": "ok", "active_tasks": len(tasks)}
 
+
+# ── Serve frontend (must be last so API routes take precedence) ──
+
+if STATIC_DIR.exists() and (STATIC_DIR / "index.html").exists():
+    app.mount("/assets", StaticFiles(directory=STATIC_DIR / "assets"), name="assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_frontend(full_path: str):
+        """Serve frontend SPA — fallback to index.html for non-API routes."""
+        file_path = STATIC_DIR / full_path
+        if file_path.name and (STATIC_DIR / full_path).exists() and (STATIC_DIR / full_path).is_file():
+            return FileResponse(STATIC_DIR / full_path)
+        return FileResponse(STATIC_DIR / "index.html")
 
 if __name__ == "__main__":
     import uvicorn

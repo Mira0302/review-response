@@ -1,4 +1,4 @@
-import { readdirSync, writeFileSync } from "node:fs";
+import { readdirSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const assetsDir = join("dist", "client", "assets");
@@ -6,7 +6,14 @@ const assetsDir = join("dist", "client", "assets");
 // Find hashed CSS and entry JS files
 const files = readdirSync(assetsDir);
 const cssFile = files.find((f) => f.startsWith("styles-") && f.endsWith(".css"));
-const jsFile = files.find((f) => f.startsWith("index-") && f.endsWith(".js"));
+
+// Pick the largest index-*.js as the main entry (not route chunks)
+const jsCandidates = files.filter((f) => f.startsWith("index-") && f.endsWith(".js"));
+const jsFile = jsCandidates.length === 1
+  ? jsCandidates[0]
+  : jsCandidates.reduce((a, b) =>
+      (statSync(join(assetsDir, a)).size > statSync(join(assetsDir, b)).size) ? a : b
+    );
 
 const html = `<!DOCTYPE html>
 <html lang="zh-CN">
