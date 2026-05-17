@@ -1,5 +1,6 @@
 # Web Framework
 fastapi>=0.115.0
+python-multipart>=0.0.20
 uvicorn>=0.32.0
 
 # LLM Framework
