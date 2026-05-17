@@ -38,18 +38,6 @@ export function AppLayout({ children }: { children: ReactNode }) {
           </button>
         </div>
 
-        {/* Search */}
-        <div className="px-3.5 pb-3">
-          <div className="relative">
-            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-muted text-[12px]">⌕</span>
-            <input
-              placeholder="搜索 论文 / 审稿意见"
-              className="w-full h-8 pl-7 pr-10 rounded-md bg-card border border-rule text-[12px] placeholder:text-ink-muted/70 focus:outline-none focus:border-rule-strong"
-            />
-            <kbd className="absolute right-2 top-1/2 -translate-y-1/2 text-[9.5px] font-mono text-ink-muted bg-surface border border-rule rounded px-1 py-0.5">⌘K</kbd>
-          </div>
-        </div>
-
         <nav className="flex-1 overflow-y-auto px-2 py-1 space-y-4">
           <ul className="space-y-px">
             {primary.map((n) => (
