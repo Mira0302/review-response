@@ -14,8 +14,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # 初始化 DeepSeek 模型
+API_KEY = os.getenv("DEEPSEEK_API_KEY") or os.getenv("OPENAI_API_KEY")
+if not API_KEY:
+    raise RuntimeError("Missing API key. Set DEEPSEEK_API_KEY or OPENAI_API_KEY environment variable.")
+
 llm = ChatOpenAI(
-    api_key=os.getenv("DEEPSEEK_API_KEY"),
+    api_key=API_KEY,
     base_url="https://api.deepseek.com",
     model="deepseek-chat",
     max_tokens=3000,
