@@ -1,0 +1,9 @@
+node_modules
+.git
+*.py
+*.ipynb
+*.md
+.env
+.env.local
+dist/server
+scripts

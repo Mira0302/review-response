@@ -1,0 +1,136 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-serif: "Inter", ui-serif, Georgia, "Times New Roman", serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Inter", "JetBrains Mono", ui-monospace, Consolas, monospace;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 18px;
+  --radius-2xl: 24px;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-muted: var(--ink-muted);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-emerald-ink: var(--emerald-ink);
+  --color-amber-soft: var(--amber-soft);
+  --color-amber-ink: var(--amber-ink);
+  --color-rose-soft: var(--rose-soft);
+  --color-rose-ink: var(--rose-ink);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-border: var(--sidebar-border);
+
+  --shadow-paper: 0 1px 0 0 oklch(0.2 0.01 80 / 0.04), 0 1px 2px 0 oklch(0.2 0.01 80 / 0.03);
+  --shadow-lift: 0 8px 24px -12px oklch(0.2 0.02 80 / 0.12), 0 2px 6px -2px oklch(0.2 0.02 80 / 0.06);
+}
+
+:root {
+  /* Warm paper editorial palette */
+  --background: oklch(0.98 0.008 85);          /* off-white cream */
+  --paper: oklch(0.965 0.012 85);              /* card paper */
+  --surface: oklch(0.955 0.014 85);
+  --surface-2: oklch(0.935 0.016 85);
+  --foreground: oklch(0.22 0.015 60);          /* deep ink */
+  --ink: oklch(0.18 0.015 60);
+  --ink-soft: oklch(0.38 0.012 60);
+  --ink-muted: oklch(0.56 0.01 60);
+
+  --rule: oklch(0.9 0.012 80);
+  --rule-strong: oklch(0.82 0.014 80);
+
+  --card: oklch(1 0 0);
+  --card-foreground: var(--ink);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--ink);
+
+  --primary: oklch(0.22 0.015 60);              /* near-black ink */
+  --primary-foreground: oklch(0.98 0.008 85);
+  --secondary: oklch(0.93 0.013 80);
+  --secondary-foreground: var(--ink);
+  --muted: oklch(0.94 0.012 80);
+  --muted-foreground: var(--ink-muted);
+  --accent: oklch(0.92 0.015 80);
+  --accent-foreground: var(--ink);
+
+  /* Academic emerald + amber accents */
+  --emerald-ink: oklch(0.42 0.09 160);
+  --amber-soft: oklch(0.94 0.06 85);
+  --amber-ink: oklch(0.55 0.13 70);
+  --rose-soft: oklch(0.94 0.04 25);
+  --rose-ink: oklch(0.52 0.16 25);
+
+  --destructive: oklch(0.55 0.18 27);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.9 0.012 80);
+  --input: oklch(0.9 0.012 80);
+  --ring: oklch(0.42 0.09 160);
+
+  --sidebar: oklch(0.97 0.01 85);
+  --sidebar-foreground: var(--ink);
+  --sidebar-accent: oklch(0.93 0.013 80);
+  --sidebar-border: var(--rule);
+
+  --radius: 12px;
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-feature-settings: "ss01", "cv11";
+    letter-spacing: -0.005em;
+  }
+  h1, h2, h3, .serif { font-family: var(--font-sans); font-weight: 600; letter-spacing: -0.025em; }
+  ::selection { background: oklch(0.42 0.09 160 / 0.18); color: var(--ink); }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .grid-paper {
+    background-image:
+      linear-gradient(to right, var(--rule) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--rule) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .ring-focus { outline: none; box-shadow: 0 0 0 3px oklch(0.42 0.09 160 / 0.15); }
+  [data-anno-highlight].anno-active {
+    background: oklch(0.55 0.13 70 / 0.18);
+    box-shadow: 0 0 0 1px oklch(0.55 0.13 70 / 0.22);
+    border-radius: 2px;
+    transition: background 0.12s, box-shadow 0.12s;
+  }
+}

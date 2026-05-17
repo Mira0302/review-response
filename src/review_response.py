@@ -31,52 +31,97 @@ def parse_review_points(review_text: str) -> str:
     return response.content
 
 
+def clean_response(text: str) -> str:
+    """Strip Chinese formal letter closings and signatures from LLM output."""
+    import re
+    # Remove "此致敬礼" in all spacing variants
+    text = re.sub(r'\n{0,2}此致\s*\n+\s*敬礼\s*', '', text)
+    text = re.sub(r'\n{0,2}此致\s*\n+\s*敬礼\s*\n*', '\n', text)
+    # Remove Chinese signature / placeholder blocks
+    text = re.sub(r'\n{0,2}作者[：:][^\n]*', '', text)
+    text = re.sub(r'\n{0,2}日期[：:][^\n]*', '', text)
+    text = re.sub(r'\n{0,2}\[您的姓名\][^\n]*', '', text)
+    text = re.sub(r'\n{0,2}\[通讯作者[^\]]*\][^\n]*', '', text)
+    text = re.sub(r'\n{0,2}\[日期\][^\n]*', '', text)
+    # Remove lines that are only whitespace at the very end
+    text = re.sub(r'\n{2,}$', '', text)
+    return text.strip()
+
+
 def generate_response_letter(
     paper_content: str,
     review_text: str,
-    paper_title: str = "论文"
+    paper_title: str = "论文",
+    language: str = "auto"
 ) -> str:
-    """生成完整的审稿意见回复信"""
-    system_prompt = """你是一位经验丰富的学术论文作者，擅长撰写专业、得体、有理有据的审稿意见回复信。
+    """生成完整的审稿意见回复信。language: auto/zh/en"""
 
-你的回复信必须遵循以下规范：
+    # Auto-detect language from review text
+    if language == "auto":
+        # Count Chinese characters vs English words
+        chinese_chars = len([c for c in review_text if '一' <= c <= '鿿'])
+        english_words = len([w for w in review_text.split() if w.isascii() and w.isalpha()])
+        detected = "zh" if chinese_chars > english_words else "en"
+    else:
+        detected = language
 
-**格式要求：**
-- 开头：感谢审稿人和编辑的时间和宝贵意见
-- 逐条回复：每条审稿意见对应一条回复，明确标注"Reviewer Comment #N"和"Response #N"
-- 每条回复包含：(1) 感谢/认可审稿人的意见 (2) 说明你做了什么修改 (3) 标注修改在论文中的位置
-- 结尾：再次感谢，并表达希望修改后达到发表标准
+    if detected == "zh":
+        system_prompt = """你是一位经验丰富的学术论文作者，擅长撰写专业的审稿意见回复信。
 
-**语气要求：**
-- 谦卑但不卑微，专业但不傲慢
-- 即使不同意审稿人的观点，也要先感谢再礼貌反驳，并给出充分理由
-- 对每条意见都要正面回应，不要回避
+【铁律 — 语言要求】整封回复信的每一个字都必须是中文。包括开头称呼（禁止写 Dear Editor）、所有逐条回复、以及结尾（禁止写 Sincerely / Best regards / We hope...）。即使审稿意见原文是英文，你的回复也必须是中文。全文不允许出现任何一个英文单词或句子。
 
-**内容要求：**
-- 审稿人要求补充实验 → 说明补充了什么实验、结果如何、在哪里
-- 审稿人指出错误 → 感谢指正，说明已修改，标注位置
-- 审稿人意见模糊 → 先给出你的理解，然后说明你据此做了哪些修改
-- 审稿人观点你不同意 → 感谢提出的角度，礼貌说明你的理由，如有补充佐证更好
+格式要求：
+- 开头：必须写"尊敬的编辑和审稿人："
+- 逐条回复：每条审稿意见对应一条回复，标注"审稿意见 #N"和"回复 #N"
+- 引用审稿意见原文时可保留原语言，但你的回复必须是中文
+- 每条回复包含：(1) 感谢审稿人的意见 (2) 说明你做了什么修改 (3) 标注修改在论文中的具体位置（如第X节、第Y页、第Z段）
+- 结尾：必须写"希望修改后的论文达到发表标准。"
+- 禁止使用"此致敬礼"、"敬礼"、"作者："、"日期："等措辞
+- 禁止添加签名块或日期行
+- 禁止在开头使用"Dear Editor"或"Dear Editor and Reviewers"
+- 禁止在结尾使用"Sincerely"、"Best regards"、"Yours sincerely"等英文落款
 
-**关键：每条回复必须具体，不能只说"已修改"。要说清楚改了什么、怎么改的、在论文的哪个位置。**"""
+内容要求：
+- 每条回复必须具体，不能只说"已修改"。要说清楚改了什么、怎么改的、在哪里
+- 即使不同意审稿人，也要先感谢再礼貌反驳，给出充分理由
+- 语气谦卑但不卑微，专业但不傲慢"""
 
-    user_prompt = f"""请为以下审稿意见生成完整的回复信。
+    else:
+        system_prompt = """You are an experienced academic author skilled at writing professional, well-reasoned response letters to peer reviewers.
 
-【论文标题】{paper_title}
+【IRON RULE — Language】Every single word of the response letter must be in English. The salutation, all point-by-point responses, and the closing must all be in English. Even if the review comments are in Chinese, your responses MUST be in English. Do NOT use any Chinese characters or phrases anywhere in the letter — not even the salutation or closing.
 
-【论文正文】
+Format requirements:
+- Opening: Start with "Dear Editor and Reviewers,"
+- Point-by-point: Label each comment and response as "Reviewer Comment #N" and "Response #N"
+- Quote review comments in their original language, but your responses MUST be in English
+- Each response must include: (1) Acknowledge the reviewer's concern (2) Describe what changes you made (3) Specify the exact location in the manuscript (Section X, Page Y, Paragraph Z)
+- Closing: End with "We hope the revised manuscript meets the standards for publication."
+- Do NOT add signature blocks, date lines, or Chinese-style closings
+- Do NOT use "尊敬的编辑" or "此致敬礼" or any Chinese salutation/closing
+
+Content requirements:
+- Every response must be specific — describe what was changed, how, and where
+- Even when disagreeing, first thank the reviewer, then politely explain your reasoning
+- Tone: humble but not subservient, professional but not arrogant"""
+
+    user_prompt = f"""Please generate a complete response letter for the following peer review.
+
+【Paper Title】{paper_title}
+
+【Manuscript Content】
 {paper_content[:8000]}...
 
-【审稿意见】
+【Review Comments】
 {review_text}
 
-请生成完整的回复信，包含开头致谢、逐条回复、结尾。"""
+Generate a complete response letter including opening acknowledgment, point-by-point responses, and closing."""
 
     response = llm.invoke([
         SystemMessage(content=system_prompt),
         HumanMessage(content=user_prompt)
     ])
-    return response.content
+    return clean_response(response.content)
 
 
 def run_review_response(
