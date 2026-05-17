@@ -230,32 +230,38 @@ async def stream_generation(task_id: str):
     )
 
 
-@app.post("/api/parse-file")
-async def parse_file(file: UploadFile = File(...)):
-    """Parse uploaded PDF/DOCX/MD/TXT and return text."""
-    allowed = {".pdf", ".docx", ".doc", ".md", ".markdown", ".txt"}
-    ext = Path(file.filename).suffix.lower() if file.filename else ""
+try:
+    import python_multipart  # noqa: F401
+    _HAS_MULTIPART = True
+except ImportError:
+    _HAS_MULTIPART = False
 
-    if ext not in allowed:
-        raise HTTPException(400, f"不支持的文件格式：{ext}，支持 PDF/Word/Markdown/TXT")
+if _HAS_MULTIPART:
+    @app.post("/api/parse-file")
+    async def parse_file(file: UploadFile = File(...)):
+        """Parse uploaded PDF/DOCX/MD/TXT and return text."""
+        allowed = {".pdf", ".docx", ".doc", ".md", ".markdown", ".txt"}
+        ext = Path(file.filename).suffix.lower() if file.filename else ""
 
-    try:
-        # Save temp file
-        tmp_path = f"/tmp/{uuid.uuid4().hex}{ext}"
-        content = await file.read()
-        with open(tmp_path, "wb") as f:
-            f.write(content)
+        if ext not in allowed:
+            raise HTTPException(400, f"不支持的文件格式：{ext}，支持 PDF/Word/Markdown/TXT")
 
-        text, label = extract_text(tmp_path)
-        os.remove(tmp_path)
+        try:
+            tmp_path = f"/tmp/{uuid.uuid4().hex}{ext}"
+            content = await file.read()
+            with open(tmp_path, "wb") as f:
+                f.write(content)
 
-        return {
-            "text": text,
-            "format": label,
-            "char_count": len(text),
-        }
-    except Exception as e:
-        raise HTTPException(500, f"文件解析失败：{str(e)}")
+            text, label = extract_text(tmp_path)
+            os.remove(tmp_path)
+
+            return {
+                "text": text,
+                "format": label,
+                "char_count": len(text),
+            }
+        except Exception as e:
+            raise HTTPException(500, f"文件解析失败：{str(e)}")
 
 
 @app.get("/api/health")
