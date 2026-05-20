@@ -153,6 +153,7 @@ function Workspace() {
   const [stageMsg, setStageMsg] = useState("");
   const [locations, setLocations] = useState<LocatedItem[]>([]);
   const [error, setError] = useState("");
+  const [fileUploading, setFileUploading] = useState<"paper" | "review" | null>(null);
   const navigate = useNavigate();
   const paperRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -234,6 +235,8 @@ function Workspace() {
   };
 
   const handleFileUpload = async (file: File, target: "paper" | "review") => {
+    setFileUploading(target);
+    setError("");
     try {
       const result = await parseFile(file);
       if (target === "paper") {
@@ -244,6 +247,7 @@ function Workspace() {
         setReview(v); persist(paper, v, language);
       }
     } catch (err: any) { setError(err.message); }
+    finally { setFileUploading(null); }
   };
 
   const clearAll = () => {
@@ -288,8 +292,8 @@ function Workspace() {
         </ol>
 
         <div className="grid grid-cols-2 gap-6">
-          <InputCard label="论文原文" hint="支持 PDF / DOCX / MD / TXT，单文件 ≤ 20MB" chip={paper ? `已就绪 · ${paper.length.toLocaleString()} 字` : "等待输入"} value={paper} onChange={handlePaper} disabled={generating} placeholder={PLACEHOLDER_PAPER} textareaRef={paperRef} onFileSelect={(f) => handleFileUpload(f, "paper")} />
-          <InputCard label="审稿意见" hint="粘贴审稿邮件全文，或上传 .txt / .md 文件" chip={review ? `自动解析 · ${reviewCount} 条` : "等待输入"} value={review} onChange={handleReview} disabled={generating} placeholder={PLACEHOLDER_REVIEW} onFileSelect={(f) => handleFileUpload(f, "review")} />
+          <InputCard label="论文原文" hint="支持 PDF / DOCX / MD / TXT，单文件 ≤ 20MB" chip={fileUploading === "paper" ? "解析中..." : (paper ? `已就绪 · ${paper.length.toLocaleString()} 字` : "等待输入")} value={paper} onChange={handlePaper} disabled={generating} placeholder={PLACEHOLDER_PAPER} textareaRef={paperRef} onFileSelect={(f) => handleFileUpload(f, "paper")} uploading={fileUploading === "paper"} />
+          <InputCard label="审稿意见" hint="粘贴审稿邮件全文，或上传 .txt / .md 文件" chip={fileUploading === "review" ? "解析中..." : (review ? `自动解析 · ${reviewCount} 条` : "等待输入")} value={review} onChange={handleReview} disabled={generating} placeholder={PLACEHOLDER_REVIEW} onFileSelect={(f) => handleFileUpload(f, "review")} uploading={fileUploading === "review"} />
         </div>
 
         {locations.length > 0 && !generating && (
@@ -367,12 +371,13 @@ function Workspace() {
 }
 
 function InputCard({
-  label, hint, chip, value, onChange, placeholder, disabled, textareaRef, onFileSelect,
+  label, hint, chip, value, onChange, placeholder, disabled, textareaRef, onFileSelect, uploading,
 }: {
   label: string; hint: string; chip: string;
   value: string; onChange: (v: string) => void; placeholder: string; disabled?: boolean;
   textareaRef?: React.RefObject<HTMLTextAreaElement>;
   onFileSelect?: (file: File) => void;
+  uploading?: boolean;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -388,7 +393,7 @@ function InputCard({
           <p className="text-[11px] text-ink-muted mt-1">{hint}</p>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={() => fileRef.current?.click()} disabled={disabled} className="text-[11px] text-ink-muted hover:text-ink underline underline-offset-2 disabled:opacity-40">↑ 上传文件</button>
+          <button onClick={() => fileRef.current?.click()} disabled={disabled || uploading} className="text-[11px] text-ink-muted hover:text-ink underline underline-offset-2 disabled:opacity-40">{uploading ? "⏳ 解析中..." : "↑ 上传文件"}</button>
           <input ref={fileRef} type="file" accept=".pdf,.docx,.doc,.md,.txt,.markdown" onChange={(e) => { const f = e.target.files?.[0]; if (f) onFileSelect?.(f); if (fileRef.current) fileRef.current.value = ""; }} className="hidden" />
           <button onClick={() => onChange("")} disabled={disabled} className="text-[11px] text-ink-muted hover:text-ink underline underline-offset-2 disabled:opacity-40">清空</button>
           <span className="font-mono text-[10px] text-ink-muted tabular-nums">{value.length.toLocaleString()} / 50,000</span>
@@ -399,14 +404,23 @@ function InputCard({
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
           onDrop={(e) => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f) onFileSelect?.(f); }}
-          className={`rounded-lg border border-dashed transition-all ${dragOver ? "border-emerald-ink bg-emerald-ink/5" : "border-rule-strong bg-paper/60"} p-5`}
+          className={`rounded-lg border border-dashed transition-all ${uploading ? "border-amber-ink/40 bg-amber-ink/5" : dragOver ? "border-emerald-ink bg-emerald-ink/5" : "border-rule-strong bg-paper/60"} p-5`}
         >
-          {!value && (
+          {!value && !uploading && (
             <div className="flex items-center gap-3 text-[12px] text-ink-soft mb-3">
               <span className="w-9 h-9 rounded-md bg-surface grid place-items-center">↑</span>
               <div>
                 <div className="text-ink"><b>拖拽文件到这里</b> 或 <a onClick={() => fileRef.current?.click()} className="underline underline-offset-2 cursor-pointer">浏览文件</a></div>
                 <div className="text-ink-muted text-[11px] mt-0.5">最大 20MB · 单文件</div>
+              </div>
+            </div>
+          )}
+          {uploading && (
+            <div className="flex items-center gap-3 text-[12px] text-ink-soft mb-3">
+              <span className="w-9 h-9 rounded-md bg-amber-ink/10 grid place-items-center animate-pulse">⏳</span>
+              <div>
+                <div className="text-ink"><b>正在解析文件...</b></div>
+                <div className="text-ink-muted text-[11px] mt-0.5">PDF/Word 文件解析较慢，请耐心等待</div>
               </div>
             </div>
           )}
